@@ -34,144 +34,108 @@ import org.springframework.lang.Nullable;
  * physical form, but a URL or File handle can just be returned for
  * certain resources. The actual behavior is implementation-specific.
  *
+ * 本接口是用于资源描述，从潜在资源的实际类型（如文件 或 类路径资源）抽象出来
+ *
+ * 一个输入流 能被每个已经存在的物理形式的资源打开，但是对于 URL 或文件 仅能 返回 确定的资源
+ * 实际的行为 基于 特定的实现
+ *
+ * Resource接口 是 Spring 框架所有资源的抽象和访问接口，它继承 InputStreamSource
+ *
+ * 作为所有资源的统一抽象，Resource 定义了一些通用的方法，由子类 AbstractResource 提供统一的默认实现。
+ *
  * @author Juergen Hoeller
  * @since 28.12.2003
  * @see #getInputStream()
  * @see #getURL()
  * @see #getURI()
  * @see #getFile()
- * @see WritableResource
- * @see ContextResource
- * @see UrlResource
- * @see FileUrlResource
- * @see FileSystemResource
- * @see ClassPathResource
- * @see ByteArrayResource
- * @see InputStreamResource
+ * @see WritableResource      可写资源
+ * @see ContextResource       上下文资源
+ * @see UrlResource           对 java.net.URL类型资源的封装。内部委派 URL 进行具体的资源操作
+ * @see FileUrlResource       文件url资源
+ * @see FileSystemResource    对 java.io.File 类型资源的封装，
+ * 							  	只要是跟 File 打交道的，基本上与 FileSystemResource 也可以打交道。
+ * 							  	支持文件和 URL 的形式，实现 WritableResource 接口，
+ * 							  	且从 Spring Framework 5.0 开始，FileSystemResource 使用 NIO2 API进行读/写交互。
+ * @see ClassPathResource     class path 类型资源的实现。使用给定的 ClassLoader 或者给定的 Class 来加载资源。
+ * @see ByteArrayResource     对字节数组提供的数据的封装。
+ * 							  	如果通过 InputStream 形式访问该类型的资源，
+ * 							  	该实现会根据字节数组的数据构造一个相应的 ByteArrayInputStream。
+ * @see InputStreamResource   将给定的 InputStream 作为一种资源的 Resource 的实现类。
  */
 public interface Resource extends InputStreamSource {
 
 	/**
-	 * Determine whether this resource actually exists in physical form.
-	 * <p>This method performs a definitive existence check, whereas the
-	 * existence of a {@code Resource} handle only guarantees a valid
-	 * descriptor handle.
+	 * 确定资源以物理的形式 是否存在
 	 */
 	boolean exists();
 
 	/**
-	 * Indicate whether non-empty contents of this resource can be read via
-	 * {@link #getInputStream()}.
-	 * <p>Will be {@code true} for typical resource descriptors that exist
-	 * since it strictly implies {@link #exists()} semantics as of 5.1.
-	 * Note that actual content reading may still fail when attempted.
-	 * However, a value of {@code false} is a definitive indication
-	 * that the resource content cannot be read.
-	 * @see #getInputStream()
-	 * @see #exists()
+	 * 确定资源是否可以通过 getInputStream 进行读取  默认实现直接调用 资源是否存在
 	 */
 	default boolean isReadable() {
 		return exists();
 	}
 
 	/**
-	 * Indicate whether this resource represents a handle with an open stream.
-	 * If {@code true}, the InputStream cannot be read multiple times,
-	 * and must be read and closed to avoid resource leaks.
-	 * <p>Will be {@code false} for typical resource descriptors.
+	 * 资源所代表的句柄是否被一个 stream 打开了
 	 */
 	default boolean isOpen() {
 		return false;
 	}
 
 	/**
-	 * Determine whether this resource represents a file in a file system.
-	 * A value of {@code true} strongly suggests (but does not guarantee)
-	 * that a {@link #getFile()} call will succeed.
-	 * <p>This is conservatively {@code false} by default.
-	 * @since 5.0
-	 * @see #getFile()
+	 * 是否为 File
 	 */
 	default boolean isFile() {
 		return false;
 	}
 
 	/**
-	 * Return a URL handle for this resource.
-	 * @throws IOException if the resource cannot be resolved as URL,
-	 * i.e. if the resource is not available as descriptor
+	 * 返回资源的 URL 的句柄
 	 */
 	URL getURL() throws IOException;
 
 	/**
-	 * Return a URI handle for this resource.
-	 * @throws IOException if the resource cannot be resolved as URI,
-	 * i.e. if the resource is not available as descriptor
-	 * @since 2.5
+	 * 返回资源的 URI 的句柄
 	 */
 	URI getURI() throws IOException;
 
 	/**
-	 * Return a File handle for this resource.
-	 * @throws java.io.FileNotFoundException if the resource cannot be resolved as
-	 * absolute file path, i.e. if the resource is not available in a file system
-	 * @throws IOException in case of general resolution/reading failures
-	 * @see #getInputStream()
+	 * 返回资源的 File 的句柄
 	 */
 	File getFile() throws IOException;
 
 	/**
-	 * Return a {@link ReadableByteChannel}.
-	 * <p>It is expected that each call creates a <i>fresh</i> channel.
-	 * <p>The default implementation returns {@link Channels#newChannel(InputStream)}
-	 * with the result of {@link #getInputStream()}.
-	 * @return the byte channel for the underlying resource (must not be {@code null})
-	 * @throws java.io.FileNotFoundException if the underlying resource doesn't exist
-	 * @throws IOException if the content channel could not be opened
-	 * @since 5.0
-	 * @see #getInputStream()
+	 * 返回 ReadableByteChannel
 	 */
 	default ReadableByteChannel readableChannel() throws IOException {
 		return Channels.newChannel(getInputStream());
 	}
 
 	/**
-	 * Determine the content length for this resource.
-	 * @throws IOException if the resource cannot be resolved
-	 * (in the file system or as some other known physical resource type)
+	 * 资源的长度
 	 */
 	long contentLength() throws IOException;
 
 	/**
-	 * Determine the last-modified timestamp for this resource.
-	 * @throws IOException if the resource cannot be resolved
-	 * (in the file system or as some other known physical resource type)
+	 * 资源最后修改时间
 	 */
 	long lastModified() throws IOException;
 
 	/**
-	 * Create a resource relative to this resource.
-	 * @param relativePath the relative path (relative to this resource)
-	 * @return the resource handle for the relative resource
-	 * @throws IOException if the relative resource cannot be determined
+	 * 根据资源相对路径创建新资源
 	 */
 	Resource createRelative(String relativePath) throws IOException;
 
 	/**
-	 * Determine a filename for this resource, i.e. typically the last
-	 * part of the path: for example, "myfile.txt".
-	 * <p>Returns {@code null} if this type of resource does not
-	 * have a filename.
+	 * 资源文件名
 	 */
 	@Nullable
 	String getFilename();
 
 	/**
-	 * Return a description for this resource,
-	 * to be used for error output when working with the resource.
-	 * <p>Implementations are also encouraged to return this value
-	 * from their {@code toString} method.
-	 * @see Object#toString()
+	 * 资源描述
 	 */
 	String getDescription();
 
