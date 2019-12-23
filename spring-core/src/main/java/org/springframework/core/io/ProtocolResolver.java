@@ -28,6 +28,10 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 4.3
  * @see DefaultResourceLoader#addProtocolResolver
+ *
+ * 该接口并没有实现类，它需要用户自定义
+ * 自定义的 Resolver 如何加入 Spring 体系呢？
+ * 调用 DefaultResourceLoader#addProtocolResolver(ProtocolResolver) 方法
  */
 @FunctionalInterface
 public interface ProtocolResolver {
