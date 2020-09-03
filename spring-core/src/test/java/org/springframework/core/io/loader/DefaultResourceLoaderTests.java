@@ -20,7 +20,7 @@ public class DefaultResourceLoaderTests {
 	public void file() throws Exception {
 		// 获取获取文件系统中的某个资源
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
-		Resource resource = resourceLoader.getResource("file:/Users/wangzuojun/spring/spring-framework/spring-core/src/test/java/org/springframework/core/io/loader/test.xml");
+		Resource resource = resourceLoader.getResource("file:/Users/wodediannao/IdeaProjects/mySpring/spring-core/src/test/java/org/springframework/core/io/loader/test.xml");
 		describe(resource);
 	}
 
