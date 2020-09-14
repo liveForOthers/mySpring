@@ -342,11 +342,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 				inputStream.close();
 			}
 		}
+		// 嵌套try catch 将读xml加载资源的异常统一为IOException
 		catch (IOException ex) {
 			throw new BeanDefinitionStoreException(
 					"IOException parsing XML document from " + encodedResource.getResource(), ex);
 		}
 		finally {
+			// 已加载资源缓存从threadLocalMap中清理  避免内存泄露
 			currentResources.remove(encodedResource);
 			if (currentResources.isEmpty()) {
 				this.resourcesCurrentlyBeingLoaded.remove();
