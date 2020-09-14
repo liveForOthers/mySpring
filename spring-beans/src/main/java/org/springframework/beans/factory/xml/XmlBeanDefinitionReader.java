@@ -397,6 +397,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			// 1 获取资源的验证模式
 			// 2 获取XML的 Document 实例
 			Document doc = doLoadDocument(inputSource, resource);
+			// 3 注册Document中的beans
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
