@@ -220,9 +220,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
+				// 根据不同的 ResourceLoader 执行不同的解析 resource 逻辑，获取 location 下的 resource 集合
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+				// 递归调用 loadBeanDefinitions
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
+					// 添加到 actualResources 中
 					Collections.addAll(actualResources, resources);
 				}
 				if (logger.isTraceEnabled()) {

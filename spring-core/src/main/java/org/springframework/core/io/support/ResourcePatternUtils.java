@@ -41,6 +41,8 @@ public abstract class ResourcePatternUtils {
 	 * @see org.springframework.util.ResourceUtils#CLASSPATH_URL_PREFIX
 	 * @see org.springframework.util.ResourceUtils#isUrl(String)
 	 * @see java.net.URL
+	 *
+	 * 以 classpath*: 开头 或 classpath: 开头 或可构建出URL 的为绝对路径
 	 */
 	public static boolean isUrl(@Nullable String resourceLocation) {
 		return (resourceLocation != null &&

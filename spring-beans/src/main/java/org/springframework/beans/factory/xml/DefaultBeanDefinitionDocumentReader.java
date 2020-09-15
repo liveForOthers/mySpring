@@ -150,7 +150,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			}
 		}
 
-		// 解析前处理
+		// 解析前处理 空实现 交给孩子处理(如需要)  一种hook函数
 		preProcessXml(root);
 		// 解析
 		parseBeanDefinitions(root, this.delegate);
@@ -174,37 +174,43 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * @param root the DOM root element of the document
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+		// 判断节点是否使用的默认namespace: "http://www.springframework.org/schema/beans"
 		if (delegate.isDefaultNamespace(root)) {
-			NodeList nl = root.getChildNodes();
+			NodeList nl = root.getChildNodes(); // 获得所有孩子节点
+			// 迭代遍历处理孩子节点
 			for (int i = 0; i < nl.getLength(); i++) {
 				Node node = nl.item(i);
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
-						parseDefaultElement(ele, delegate);
+						parseDefaultElement(ele, delegate); //使用默认命名空间的bean注册 经典的<bean id="" class="" />方式
 					}
 					else {
-						delegate.parseCustomElement(ele);
+						delegate.parseCustomElement(ele); //使用非默认命名空间的bean注册
 					}
 				}
 			}
 		}
 		else {
-			delegate.parseCustomElement(root);
+			delegate.parseCustomElement(root); //使用非默认命名空间的bean注册 如自定义注解方式
 		}
 	}
 
+	// 分别对四种标签进行解析
 	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
+		// import 一个配置文件中引入了其他配置文件  Why import?
+		// 1 因都放在一个配置文件中会导致配置文件巨大
+		// 2 业务和技术复杂度随着业务发展越来越高 新模块引入直接import 新模块的配置文件即可 便于后期维护
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
 			importBeanDefinitionResource(ele);
 		}
-		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
+		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) { // alias
 			processAliasRegistration(ele);
 		}
-		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
+		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) { // bean
 			processBeanDefinition(ele, delegate);
 		}
-		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
+		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) { // beans
 			// recurse
 			doRegisterBeanDefinitions(ele);
 		}
@@ -213,19 +219,24 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	/**
 	 * Parse an "import" element and load the bean definitions
 	 * from the given resource into the bean factory.
+	 *
+	 * 仅支持 <import resource = "xx.xml" />
 	 */
 	protected void importBeanDefinitionResource(Element ele) {
+		// 获取 resource 属性值
 		String location = ele.getAttribute(RESOURCE_ATTRIBUTE);
+		// resource 不存在 直接结束
 		if (!StringUtils.hasText(location)) {
 			getReaderContext().error("Resource location must not be empty", ele);
 			return;
 		}
 
+		// 解析系统属性 如 "${user.dir}" 一般写在property文件中？
 		// Resolve system properties: e.g. "${user.dir}"
 		location = getReaderContext().getEnvironment().resolveRequiredPlaceholders(location);
-
+		// 存储resource的集合
 		Set<Resource> actualResources = new LinkedHashSet<>(4);
-
+		// 判断 location 是相对路径还是绝对路径
 		// Discover whether the location is an absolute or relative URI
 		boolean absoluteLocation = false;
 		try {
@@ -237,8 +248,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 
 		// Absolute or relative?
+		// 如果是绝对路径
 		if (absoluteLocation) {
 			try {
+				// 将 location 中的 resource 添加到 actualResources 集合中， 并加载对应的 BeanDefinitions
 				int importCount = getReaderContext().getReader().loadBeanDefinitions(location, actualResources);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Imported " + importCount + " bean definitions from URL location [" + location + "]");
@@ -249,17 +262,24 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						"Failed to import bean definitions from URL location [" + location + "]", ele, ex);
 			}
 		}
+		// 如果是相对路径
 		else {
 			// No URL -> considering resource location as relative to the current file.
 			try {
 				int importCount;
+				// 根据相对地址 location 创建对应的 resource
 				Resource relativeResource = getReaderContext().getResource().createRelative(location);
+				// 如相对地址 resource 存在
 				if (relativeResource.exists()) {
+					// 加载对应的 BeanDefinitions
 					importCount = getReaderContext().getReader().loadBeanDefinitions(relativeResource);
+					// 加入到 actualResources 集合中
 					actualResources.add(relativeResource);
 				}
 				else {
+					// 获得根路径地址
 					String baseLocation = getReaderContext().getResource().getURL().toString();
+					// resource 添加到 actualResources 集合中， 并加载对应的 BeanDefinitions
 					importCount = getReaderContext().getReader().loadBeanDefinitions(
 							StringUtils.applyRelativePath(baseLocation, location), actualResources);
 				}
@@ -275,7 +295,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						"Failed to import bean definitions from relative location [" + location + "]", ele, ex);
 			}
 		}
+
 		Resource[] actResArray = actualResources.toArray(new Resource[0]);
+		// 解析成功 执行监听器激活处理 仅仅是把对应的 已经加载的 Resources 存一份？
 		getReaderContext().fireImportProcessed(location, actResArray, extractSource(ele));
 	}
 
