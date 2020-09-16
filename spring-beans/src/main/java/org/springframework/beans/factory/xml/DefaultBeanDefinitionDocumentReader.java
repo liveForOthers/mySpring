@@ -202,13 +202,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// 1 因都放在一个配置文件中会导致配置文件巨大
 		// 2 业务和技术复杂度随着业务发展越来越高 新模块引入直接import 新模块的配置文件即可 便于后期维护
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
-			importBeanDefinitionResource(ele);
+			importBeanDefinitionResource(ele); // 导入其他配置文件
 		}
 		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) { // alias
-			processAliasRegistration(ele);
+			processAliasRegistration(ele); // 维护了 alias 与 name的映射关系
 		}
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) { // bean
-			processBeanDefinition(ele, delegate);
+			processBeanDefinition(ele, delegate); // 对bean标签进行解析
 		}
 		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) { // beans
 			// recurse
@@ -336,11 +336,15 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * and registering it with the registry.
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+		// 执行bean标签解析
+		// 解析失败 返回null  成功返回 指定name 和alias 以及BeanDefinition 的 BeanDefinitionHolder 对象
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
+			// 进行自定义标签处理
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
+				// 进行 beanDefinition 注册
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {
@@ -348,6 +352,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
 			// Send registration event.
+			// 通知监听器 已完成bean 解析注册
 			getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
 		}
 	}
