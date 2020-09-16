@@ -725,9 +725,17 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse property sub-elements of the given bean element.
+	 *
+	 * <bean id="studentService" class="org.springframework.core.service.StudentService">
+	 *     <property name="name" value="chenssy"/>
+	 *     <property name="age" value="18"/>
+	 * </bean>
+	 *
+	 * 通过set 方法往bean 中注入属性  循环依赖时也可以生成bean
 	 */
 	public void parsePropertyElements(Element beanEle, BeanDefinition bd) {
 		NodeList nl = beanEle.getChildNodes();
+		// 遍历子节点 处理每个 property 节点
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (isCandidateElement(node) && nodeNameEquals(node, PROPERTY_ELEMENT)) {
@@ -866,7 +874,7 @@ public class BeanDefinitionParserDelegate {
 	 * Parse a property element.
 	 */
 	public void parsePropertyElement(Element ele, BeanDefinition bd) {
-		String propertyName = ele.getAttribute(NAME_ATTRIBUTE);
+		String propertyName = ele.getAttribute(NAME_ATTRIBUTE); // name 属性
 		if (!StringUtils.hasLength(propertyName)) {
 			error("Tag 'property' must have a 'name' attribute", ele);
 			return;
@@ -877,11 +885,11 @@ public class BeanDefinitionParserDelegate {
 				error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
 				return;
 			}
-			Object val = parsePropertyValue(ele, bd, propertyName);
-			PropertyValue pv = new PropertyValue(propertyName, val);
+			Object val = parsePropertyValue(ele, bd, propertyName); // 解析 value
+			PropertyValue pv = new PropertyValue(propertyName, val); // 包装value 和 name 为 PropertyValue
 			parseMetaElements(ele, pv);
 			pv.setSource(extractSource(ele));
-			bd.getPropertyValues().addPropertyValue(pv);
+			bd.getPropertyValues().addPropertyValue(pv); // 加入 beanDefination的 PropertyValues 集合中
 		}
 		finally {
 			this.parseState.pop();
