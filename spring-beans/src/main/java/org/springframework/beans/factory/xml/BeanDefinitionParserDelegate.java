@@ -703,9 +703,18 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse constructor-arg sub-elements of the given bean element.
+	 *
+	 * <bean id="bookService" class="org.springframework.core.service.BookService"/>
+	 *
+	 * <bean id="studentService" class="org.springframework.core.service.StudentService">
+	 *     <constructor-arg index="0" value="chenssy"/>
+	 *     <constructor-arg name="age" value="100"/>
+	 *     <constructor-arg name="bookService" ref="bookService"/>
+	 * </bean>
 	 */
 	public void parseConstructorArgElements(Element beanEle, BeanDefinition bd) {
 		NodeList nl = beanEle.getChildNodes();
+		// 遍历子节点  如有name为 constructor-arg 的节点 进行解析 存入 BeanDefinition 中
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (isCandidateElement(node) && nodeNameEquals(node, CONSTRUCTOR_ARG_ELEMENT)) {
@@ -789,9 +798,11 @@ public class BeanDefinitionParserDelegate {
 	 * Parse a constructor-arg element.
 	 */
 	public void parseConstructorArgElement(Element ele, BeanDefinition bd) {
+		// 读取 index、type、name 属性值
 		String indexAttr = ele.getAttribute(INDEX_ATTRIBUTE);
 		String typeAttr = ele.getAttribute(TYPE_ATTRIBUTE);
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
+		// 优先index
 		if (StringUtils.hasLength(indexAttr)) {
 			try {
 				int index = Integer.parseInt(indexAttr);
@@ -800,8 +811,11 @@ public class BeanDefinitionParserDelegate {
 				}
 				else {
 					try {
+						// 构造 ConstructorArgumentEntry 对象 并加入到队列中
 						this.parseState.push(new ConstructorArgumentEntry(index));
+						// 解析 constructor-arg 子元素 返回结果值
 						Object value = parsePropertyValue(ele, bd, null);
+						// 根据 value name type ele 构建 ConstructorArgumentValues.ValueHolder 对象
 						ConstructorArgumentValues.ValueHolder valueHolder = new ConstructorArgumentValues.ValueHolder(value);
 						if (StringUtils.hasLength(typeAttr)) {
 							valueHolder.setType(typeAttr);
@@ -810,10 +824,12 @@ public class BeanDefinitionParserDelegate {
 							valueHolder.setName(nameAttr);
 						}
 						valueHolder.setSource(extractSource(ele));
+						// 不允许对同一元素重复指定
 						if (bd.getConstructorArgumentValues().hasIndexedArgumentValue(index)) {
 							error("Ambiguous constructor-arg entries for index " + index, ele);
 						}
 						else {
+							// 加入到 IndexedArgumentValue 中
 							bd.getConstructorArgumentValues().addIndexedArgumentValue(index, valueHolder);
 						}
 					}
