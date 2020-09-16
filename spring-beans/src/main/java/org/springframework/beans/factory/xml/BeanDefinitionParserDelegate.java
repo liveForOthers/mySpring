@@ -957,6 +957,7 @@ public class BeanDefinitionParserDelegate {
 			}
 		}
 
+		// ref 以及 value 不能同时都有
 		boolean hasRefAttribute = ele.hasAttribute(REF_ATTRIBUTE);
 		boolean hasValueAttribute = ele.hasAttribute(VALUE_ATTRIBUTE);
 		if ((hasRefAttribute && hasValueAttribute) ||
