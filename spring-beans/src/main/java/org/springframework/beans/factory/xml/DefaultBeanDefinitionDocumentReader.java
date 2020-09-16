@@ -305,9 +305,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Process the given alias element, registering the alias with the registry.
 	 */
 	protected void processAliasRegistration(Element ele) {
-		String name = ele.getAttribute(NAME_ATTRIBUTE);
-		String alias = ele.getAttribute(ALIAS_ATTRIBUTE);
+		String name = ele.getAttribute(NAME_ATTRIBUTE); // 获取 name 属性
+		String alias = ele.getAttribute(ALIAS_ATTRIBUTE); // 获取 alias 属性
 		boolean valid = true;
+		// name and alias mustn't be empty.
 		if (!StringUtils.hasText(name)) {
 			getReaderContext().error("Name must not be empty", ele);
 			valid = false;
@@ -318,12 +319,14 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 		if (valid) {
 			try {
+				// 注册alias属性
 				getReaderContext().getRegistry().registerAlias(name, alias);
 			}
 			catch (Exception ex) {
 				getReaderContext().error("Failed to register alias '" + alias +
 						"' for bean with name '" + name + "'", ele, ex);
 			}
+			// 激活监听器处理
 			getReaderContext().fireAliasRegistered(name, alias, extractSource(ele));
 		}
 	}
