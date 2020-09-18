@@ -218,6 +218,8 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		String canonicalName = name;
 		// Handle aliasing...
 		String resolvedName;
+		// 循环 将alias 转为最终无法再转的 BeanName
+		// 如 xiaoA -> xiaoB  xiaoB -> people   传入xiaoA 转为people
 		do {
 			resolvedName = this.aliasMap.get(canonicalName);
 			if (resolvedName != null) {
