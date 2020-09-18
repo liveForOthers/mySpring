@@ -51,7 +51,7 @@ public class FactoryBeanTests {
 	public void testFactoryBeanReturnsNull() throws Exception {
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
 		new XmlBeanDefinitionReader(factory).loadBeanDefinitions(RETURNS_NULL_CONTEXT);
-
+		String factoryBean = factory.getBean("factoryBean").toString();
 		assertEquals("null", factory.getBean("factoryBean").toString());
 	}
 
