@@ -302,17 +302,21 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// 处理所依赖的 bean
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
+					// 通过迭代的方式依次对依赖 bean 进行检测、校验。如果通过，则调用 #getBean(String beanName) 方法，实例化依赖的 Bean 对象。
 					// 若给定的依赖 bean 已经注册为依赖给定的 bean
 					// 循环依赖的情况
 					for (String dep : dependsOn) {
+						// 检测是否循环依赖且无法处理  如是抛出异常 否则会死循环
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
 
 						// 缓存依赖调用
+						// 将该依赖进行注册，便于在销毁 Bean 之前对其进行销毁
 						registerDependentBean(dep, beanName);
 						try {
+							// 递归处理依赖 bean
 							getBean(dep);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
@@ -324,7 +328,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Create bean instance.
 				// bean 实例化
-
 				// 如为单例模式的bean
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
