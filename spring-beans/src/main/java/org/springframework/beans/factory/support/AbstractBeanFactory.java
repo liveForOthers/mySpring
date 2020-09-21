@@ -313,7 +313,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						}
 
 						// 缓存依赖调用
-						// 将该依赖进行注册，便于在销毁 Bean 之前对其进行销毁
+						// 将该依赖进行注册，便于在销毁 Bean 之前对其进行销毁  缓存依赖关系便于销毁关联的bean
 						registerDependentBean(dep, beanName);
 						try {
 							// 递归处理依赖 bean
