@@ -261,6 +261,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
+			// 原型模式下没法使用缓存的，所以 Spring 对原型模式的循环依赖处理策略则是不处理。 如有循环依赖抛出异常
 			if (isPrototypeCurrentlyInCreation(beanName)) { // 原型模式下且存在循环依赖抛出异常
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -1046,6 +1047,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * Return whether the specified prototype bean is currently in creation
 	 * (within the current thread).
 	 * @param beanName the name of the bean
+	 * 检测逻辑和单例模式一样，一个“集合”存放着正在创建的 Bean ，从该集合中进行判断即可，
+	 * 单例模式的“集合”为 Set ，而原型模式的则是 ThreadLocal
 	 */
 	protected boolean isPrototypeCurrentlyInCreation(String beanName) {
 		Object curVal = this.prototypesCurrentlyInCreation.get(); // 查询正在创建的bean的名字
