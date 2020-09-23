@@ -358,7 +358,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
-
+				// request、session 作用域下创建bean
 				else {
 					// 从指定的 scope 下创建 bean
 					String scopeName = mbd.getScope();
