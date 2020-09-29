@@ -36,6 +36,8 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @see org.springframework.context.support.ResourceBundleMessageSource
  * @see org.springframework.context.support.ReloadableResourceBundleMessageSource
+ *
+ * 解析 message 的策略接口，支持消息的参数化和国际化。
  */
 public interface MessageSource {
 

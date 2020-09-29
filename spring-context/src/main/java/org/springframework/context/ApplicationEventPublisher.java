@@ -27,6 +27,8 @@ package org.springframework.context;
  * @see ApplicationEventPublisherAware
  * @see org.springframework.context.ApplicationEvent
  * @see org.springframework.context.event.EventPublicationInterceptor
+ *
+ * 封装事件发布功能的接口，向事件监听器（Listener）发送事件消息。
  */
 @FunctionalInterface
 public interface ApplicationEventPublisher {

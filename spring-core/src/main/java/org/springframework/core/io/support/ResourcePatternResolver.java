@@ -50,6 +50,9 @@ import org.springframework.core.io.ResourceLoader;
  * @see org.springframework.core.io.ResourceLoader
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ *
+ * 加载资源的顶层接口，用于从一个源加载资源文件。ApplicationContext 继承 ResourceLoader 的子类 ResourcePatternResolver，
+ * 该接口是将 location 解析为 Resource 对象的策略接口。
  */
 public interface ResourcePatternResolver extends ResourceLoader {
 
