@@ -46,6 +46,9 @@ package org.springframework.context;
  * @see ConfigurableApplicationContext
  * @see org.springframework.jms.listener.AbstractMessageListenerContainer
  * @see org.springframework.scheduling.quartz.SchedulerFactoryBean
+ *
+ * 对 context 生命周期的管理，它提供 #start() 和 #stop() 方法启动和暂停组件。
+ *
  */
 public interface Lifecycle {
 
