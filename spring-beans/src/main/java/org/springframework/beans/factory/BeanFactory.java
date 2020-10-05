@@ -120,6 +120,10 @@ public interface BeanFactory {
 	 * beans <i>created</i> by the FactoryBean. For example, if the bean named
 	 * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
 	 * will return the factory, not the instance returned by the factory.
+	 *
+	 * 用来解引用一个 FactoryBean 实例. 将她和 FactoryBean创建的对象区分开
+	 *         Person person = applicationContext.getBean("person1", Person.class);   返回person1.getObject() 方法创建的实例
+	 *         Person person = applicationContext.getBean("&person1", Person.class);  返回person1本身实例
 	 */
 	String FACTORY_BEAN_PREFIX = "&";
 
@@ -136,6 +140,8 @@ public interface BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if there is no bean definition
 	 * with the specified name
 	 * @throws BeansException if the bean could not be obtained
+	 *
+	 * 根据bean name 获得实例
 	 */
 	Object getBean(String name) throws BeansException;
 
@@ -153,6 +159,8 @@ public interface BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if there is no such bean definition
 	 * @throws BeanNotOfRequiredTypeException if the bean is not of the required type
 	 * @throws BeansException if the bean could not be created
+	 *
+	 * 返回被强制类型转换后的对象
 	 */
 	<T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
@@ -169,6 +177,8 @@ public interface BeanFactory {
 	 * the affected bean isn't a prototype
 	 * @throws BeansException if the bean could not be created
 	 * @since 2.5
+	 *
+	 * 获得 指定构造方法参数 的对象
 	 */
 	Object getBean(String name, Object... args) throws BeansException;
 
@@ -185,6 +195,8 @@ public interface BeanFactory {
 	 * @throws BeansException if the bean could not be created
 	 * @since 3.0
 	 * @see ListableBeanFactory
+	 *
+	 * 获得指定class 类型的对象
 	 */
 	<T> T getBean(Class<T> requiredType) throws BeansException;
 
@@ -347,6 +359,8 @@ public interface BeanFactory {
 	 * @param name the bean name to check for aliases
 	 * @return the aliases, or an empty array if none
 	 * @see #getBean
+	 *
+	 * 更据beanName 获取对应bean的所有别名
 	 */
 	String[] getAliases(String name);
 
