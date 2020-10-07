@@ -34,6 +34,14 @@ import org.springframework.lang.Nullable;
  *
  * 除了 ApplicationContext 中的应用上下文客户端接口外  提供了配置一个应用上下文的功能
  *
+ * 继承了 ApplicationContext 获得了其所有能力：环境、可列举获取bean的容器、层级关系的容器、消息、事件发送、资源解析器
+ *
+ * 继承了Lifecycle 获得了生命周期管理的 开启组件、停止组件、获取当前组件是否运行的能力
+ *
+ * 继承了 Closeable 获得了关闭IO流的能力
+ *
+ * 增加了 设置唯一ID、设置父容器、设置环境、增加后置处理器、增加应用监听器、增加资源解析器、刷新配置等配置能力。
+ *
  * <p>Configuration and lifecycle methods are encapsulated here to avoid
  * making them obvious to ApplicationContext client code. The present
  * methods should only be used by startup and shutdown code.
