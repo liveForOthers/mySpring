@@ -104,6 +104,8 @@ import org.springframework.util.ReflectionUtils;
  * in the context; otherwise, a default multicaster of type
  * {@link org.springframework.context.event.SimpleApplicationEventMulticaster} will be used.
  *
+ * messageSource 与 applicationEventMulticaster 实例通过bean工厂获取
+ *
  * <p>Implements resource loading through extending
  * {@link org.springframework.core.io.DefaultResourceLoader}.
  * Consequently treats non-URL resource paths as class path resources
