@@ -36,6 +36,8 @@ import org.springframework.lang.Nullable;
  * @see ConfigurableListableBeanFactory#getBeanDefinition
  * @see org.springframework.beans.factory.support.RootBeanDefinition
  * @see org.springframework.beans.factory.support.ChildBeanDefinition
+ *
+ * 保存了我们的 Bean 信息，比如这个 Bean 指向的是哪个类、是否是单例的、是否懒加载、这个 Bean 依赖了哪些 Bean 等等。
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
@@ -43,6 +45,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Scope identifier for the standard singleton scope: "singleton".
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
+	 * 单例
 	 */
 	String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
 
@@ -50,6 +53,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Scope identifier for the standard prototype scope: "prototype".
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
+	 * 原型
 	 */
 	String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
@@ -84,6 +88,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set the name of the parent definition of this bean definition, if any.
+	 * 设置父类bean名字
 	 */
 	void setParentName(@Nullable String parentName);
 
@@ -100,6 +105,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #setParentName
 	 * @see #setFactoryBeanName
 	 * @see #setFactoryMethodName
+	 * 设置bean的类名称，用于反射生成实例
 	 */
 	void setBeanClassName(@Nullable String beanClassName);
 
@@ -114,6 +120,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #getParentName()
 	 * @see #getFactoryBeanName()
 	 * @see #getFactoryMethodName()
+	 * 获取bean的类名称
 	 */
 	@Nullable
 	String getBeanClassName();
@@ -122,6 +129,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Override the target scope of this bean, specifying a new scope name.
 	 * @see #SCOPE_SINGLETON
 	 * @see #SCOPE_PROTOTYPE
+	 * 设置bean的scope
 	 */
 	void setScope(@Nullable String scope);
 
@@ -136,6 +144,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set whether this bean should be lazily initialized.
 	 * <p>If {@code false}, the bean will get instantiated on startup by bean
 	 * factories that perform eager initialization of singletons.
+	 * 设置是否懒加载
 	 */
 	void setLazyInit(boolean lazyInit);
 
@@ -148,6 +157,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Set the names of the beans that this bean depends on being initialized.
 	 * The bean factory will guarantee that these beans get initialized first.
+	 * 设置 该bean所依赖的所有的bean 不是值属性依赖(如 @Autowire 标记的)
+	 * 指的 depends-on="" 属性设置的值
 	 */
 	void setDependsOn(@Nullable String... dependsOn);
 
@@ -163,6 +174,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * It does not affect explicit references by name, which will get resolved even
 	 * if the specified bean is not marked as an autowire candidate. As a consequence,
 	 * autowiring by name will nevertheless inject a bean if the name matches.
+	 *
+	 * 设置本bean 是否可以根据类型注入到其他bean中   根据名字注入不受此条件限制
 	 */
 	void setAutowireCandidate(boolean autowireCandidate);
 
@@ -175,6 +188,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set whether this bean is a primary autowire candidate.
 	 * <p>If this value is {@code true} for exactly one bean among multiple
 	 * matching candidates, it will serve as a tie-breaker.
+	 *
+	 * 主要的。同一接口的多个实现，如果不指定名字的话，Spring 会优先选择设置 primary 为 true 的 bean
 	 */
 	void setPrimary(boolean primary);
 
@@ -187,6 +202,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Specify the factory bean to use, if any.
 	 * This the name of the bean to call the specified factory method on.
 	 * @see #setFactoryMethodName
+	 *
+	 * 如果该 Bean 采用工厂方法生成，指定工厂bean名称。
+	 * 有些实例不是用反射生成的，而是用工厂模式生成的
 	 */
 	void setFactoryBeanName(@Nullable String factoryBeanName);
 
@@ -203,6 +221,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * or otherwise as a static method on the local bean class.
 	 * @see #setFactoryBeanName
 	 * @see #setBeanClassName
+	 *
+	 * 工厂bean中生产本bean的方法名字
 	 */
 	void setFactoryMethodName(@Nullable String factoryMethodName);
 
@@ -216,6 +236,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Return the constructor argument values for this bean.
 	 * <p>The returned instance can be modified during bean factory post-processing.
 	 * @return the ConstructorArgumentValues object (never {@code null})
+	 *
+	 * 构造器参数
 	 */
 	ConstructorArgumentValues getConstructorArgumentValues();
 
@@ -231,6 +253,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Return the property values to be applied to a new instance of the bean.
 	 * <p>The returned instance can be modified during bean factory post-processing.
 	 * @return the MutablePropertyValues object (never {@code null})
+	 *
+	 * Bean 中的属性值，先注册bean   获取bean时再注入属性值??
 	 */
 	MutablePropertyValues getPropertyValues();
 
@@ -245,6 +269,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Set the name of the initializer method.
 	 * @since 5.1
+	 *
+	 * 设置初始化方法
 	 */
 	void setInitMethodName(@Nullable String initMethodName);
 
@@ -308,6 +334,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Return whether this a <b>Singleton</b>, with a single, shared instance
 	 * returned on all calls.
 	 * @see #SCOPE_SINGLETON
+	 *
+	 * 返回是否是单例bean
 	 */
 	boolean isSingleton();
 
@@ -316,11 +344,15 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * returned for each call.
 	 * @since 3.0
 	 * @see #SCOPE_PROTOTYPE
+	 *
+	 * 返回是否是原型bean
 	 */
 	boolean isPrototype();
 
 	/**
 	 * Return whether this bean is "abstract", that is, not meant to be instantiated.
+	 * 如果这个 Bean 是被设置为 abstract，那么不能实例化，
+	 * 常用于作为 父bean 用于继承，其实也很少用......
 	 */
 	boolean isAbstract();
 
