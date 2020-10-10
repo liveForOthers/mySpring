@@ -414,8 +414,8 @@ public class BeanDefinitionParserDelegate {
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
 		String id = ele.getAttribute(ID_ATTRIBUTE); // 解析id属性
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE); // 解析name属性
-
-		// bean 别名集合
+		// 将 name 属性的定义按照 “逗号、分号、空格” 切分，形成一个 别名列表数组
+		// 如指定id和name  id作为beanName name中数组全是别名 如无id 则name第一个作为beanName  其他为别名
 		List<String> aliases = new ArrayList<>();
 		if (StringUtils.hasLength(nameAttr)) {
 			String[] nameArr = StringUtils.tokenizeToStringArray(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
@@ -437,7 +437,7 @@ public class BeanDefinitionParserDelegate {
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
-
+		// 根据 <bean ...>...</bean> 中的配置创建 BeanDefinition，然后把配置中的信息都设置到实例中
 		// 解析属性 构造 AbstractBeanDefinition 对象
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {

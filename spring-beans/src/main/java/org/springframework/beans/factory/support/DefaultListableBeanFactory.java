@@ -889,7 +889,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-
+		// 查询 beanName 是否已经对应一个 BeanDefinition  默认同beanName 在多xml文件中会覆盖  在一个xml中会报错。 所有的 Bean 注册后会放入这个 beanDefinitionMap 中
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
 		// 如该 beanName 已经存在
 		if (existingDefinition != null) {
