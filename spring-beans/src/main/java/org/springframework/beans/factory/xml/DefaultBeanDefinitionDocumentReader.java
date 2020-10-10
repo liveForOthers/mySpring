@@ -132,7 +132,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 
 		// 如namespace为 "http://www.springframework.org/schema/beans"
 		if (this.delegate.isDefaultNamespace(root)) {
-			// 如根节点存在 profile
+			// 如根节点存在 profile 这块说的是根节点 <beans ... profile="dev" /> 中的 profile 是否是当前环境需要的，如果当前环境配置的 profile 不包含此 profile，那就直接 return 了，不对此 <beans /> 解析
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
 			if (StringUtils.hasText(profileSpec)) {
 				// 校验是否存在有效的profile  存在进行bean注册 否则不注册
@@ -154,7 +154,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		preProcessXml(root);
 		// 解析
 		parseBeanDefinitions(root, this.delegate);
-		// 解析后处理
+		// 解析后处理 钩子
 		postProcessXml(root);
 
 		this.delegate = parent;
@@ -183,10 +183,18 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
-						parseDefaultElement(ele, delegate); //使用默认命名空间的bean注册 经典的<bean id="" class="" />方式
+						// 使用默认命名空间的bean注册 xmlns="http://www.springframework.org/schema/beans"
+						// 经典的<bean id="" class="" />方式   parseDefaultElement(ele, delegate) 代表解析的节点是
+						// <import />、<alias />、<bean />、<beans /> 这几个。
+						parseDefaultElement(ele, delegate);
 					}
 					else {
-						delegate.parseCustomElement(ele); //使用非默认命名空间的bean注册
+						// 使用非默认命名空间的bean注册 xmlns:context="http://www.springframework.org/schema/context"
+						// xmlns:mvc="http://www.springframework.org/schema/mvc"
+						// 其他的标签，将进入到 delegate.parseCustomElement(element) 这个分支。如我们经常会使用到的
+						// <mvc />、<task />、<context />、<aop />等。
+						// 同时代码中需要提供相应的 parser 来解析，如 MvcNamespaceHandler、TaskNamespaceHandler、ContextNamespaceHandler、AopNamespaceHandler 等。
+						delegate.parseCustomElement(ele);
 					}
 				}
 			}
